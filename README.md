@@ -46,6 +46,11 @@ The **Employee Management System** is a Java Spring Boot application designed to
 - **Postman:** Tool for testing API endpoints.
 - **JUnit:** Framework for writing and running tests.
 
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/bcf0dd0c-5909-4b1e-9d54-c568e7688603" alt="uml" />
+</p>
+
 ## Project Directory Structure
 ```
 employee-management-system
