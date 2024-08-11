@@ -175,9 +175,17 @@ The database for this application is designed to manage employees, departments, 
 - **`project`**: Stores project information.
   - **Columns**: `id` (INT, Primary Key), `name` (VARCHAR)
 - **`employee_project`**: Stores the relationship between employees and projects.
-  - **Columns**: `employee_id` (INT, Foreign Key), `project_id` (INT, Foreign Key)
+- **Columns**: `employee_id` (INT, Foreign Key), `project_id` (INT, Foreign Key)
+
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/4474d4c6-75bf-4aa8-a504-d882df9ea705" alt="uml" />
+</p>
+
+    
 2. **Update `application.properties`:**
    - In `src/main/resources/application.properties`, add the following properties to configure your MySQL database connection:
+     
 ```properties
 # Application name for the Spring Boot application
 spring.application.name=employee-management-system
