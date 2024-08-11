@@ -1,5 +1,6 @@
 package com.example.employee_management_system.controller;
 
+import com.example.employee_management_system.DTO.DepartmentDTO;
 import com.example.employee_management_system.model.Department;
 import com.example.employee_management_system.service.DepartmentService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,6 +11,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -65,15 +68,24 @@ public class DepartmentController {
             @ApiResponse(responseCode = "404", description = "Department not found", content = @Content)
     })
     @PutMapping("/{id}")
-    public Department updateDepartment(
+    public ResponseEntity<Department> updateDepartment(
             @Parameter(description = "ID of the department to be updated", required = true)
             @PathVariable Long id,
-            @Parameter(description = "Updated department object", required = true,
-                    content = @Content(schema = @Schema(implementation = Department.class)))
-            @RequestBody Department department) {
-        department.setId(id);
-        return departmentService.save(department);
+            @RequestBody DepartmentDTO departmentDTO) {
+
+        Department existingDepartment = departmentService.findById(id);
+        if (existingDepartment == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        existingDepartment.setName(departmentDTO.getName()); // Update only the name
+        Department updatedDepartment = departmentService.save(existingDepartment);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(updatedDepartment);
     }
+
 
     @Operation(summary = "Delete a department", description = "Delete a department by its ID.")
     @ApiResponses(value = {

@@ -204,18 +204,27 @@ public class EmployeeController {
             @Parameter(description = "List of project IDs to be assigned", required = true)
             @RequestBody List<Long> projectIds) {
 
+        // Retrieve the employee by ID
         Employee employee = employeeService.findById(employeeId);
         if (employee == null) {
+            // If employee is not found, return 404
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
 
+        // Retrieve the projects by their IDs
         List<Project> projects = projectService.findAllById(projectIds);
         if (projects == null || projects.isEmpty()) {
+            // If no projects are found, return 404
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
 
+        // Assign the projects to the employee
         employee.setProjects(projects);
+
+        // Save the updated employee
         Employee updatedEmployee = employeeService.save(employee);
+
+        // Return the updated employee with a 200 OK status
         return ResponseEntity.ok(updatedEmployee);
     }
 

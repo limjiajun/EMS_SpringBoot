@@ -1,6 +1,8 @@
 package com.example.employee_management_system.controller;
 
 
+import com.example.employee_management_system.DTO.EmployeeDTO;
+import com.example.employee_management_system.DTO.ProjectDTO;
 import com.example.employee_management_system.model.Project;
 import com.example.employee_management_system.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,9 +15,14 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,16 +83,44 @@ public class ProjectController {
             @ApiResponse(responseCode = "404", description = "Project not found", content = @Content)
     })
     @PutMapping("/{id}")
-    public Project updateProject(
-            @Parameter(description = "ID of the project to be updated", required = true)
+    public ResponseEntity<ProjectDTO> updateProject(
             @PathVariable Long id,
-            @Parameter(description = "Updated project object", required = true,
-                    content = @Content(schema = @Schema(implementation = Project.class)))
-            @RequestBody @Valid Project project) {
-        project.setId(id);
-        logger.info("Updating project with ID: {}", id);
-        return projectService.save(project);
+            @RequestBody @Valid ProjectDTO projectDTO) {
+
+        // Find existing project
+        Project existingProject = projectService.findById(id);
+        if (existingProject == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Update only the name from the request body
+        existingProject.setName(projectDTO.getName());
+        Project updatedProject = projectService.save(existingProject);
+
+        // Convert updatedProject to ProjectDTO before returning
+        ProjectDTO responseDTO = new ProjectDTO();
+        responseDTO.setId(updatedProject.getId());
+        responseDTO.setName(updatedProject.getName());
+        responseDTO.setEmployees(updatedProject.getEmployees().stream()
+                .map(employee -> {
+                    EmployeeDTO employeeDTO = new EmployeeDTO();
+                    employeeDTO.setId(employee.getId());
+                    employeeDTO.setName(employee.getName());
+                    employeeDTO.setPosition(employee.getPosition());
+                    employeeDTO.setDepartmentId(employee.getDepartment().getId());
+                    employeeDTO.setProjectIds(employee.getProjects().stream()
+                            .map(Project::getId)
+                            .collect(Collectors.toList()));
+                    return employeeDTO;
+                })
+                .collect(Collectors.toList()));
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseDTO);
     }
+
+
 
     @Operation(summary = "Delete a project", description = "Delete a project by its ID.")
     @ApiResponses(value = {
