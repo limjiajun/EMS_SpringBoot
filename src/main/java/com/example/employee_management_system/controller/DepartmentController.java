@@ -55,8 +55,10 @@ public class DepartmentController {
     @PostMapping
     public Department createDepartment(
             @Parameter(description = "Department object to be created", required = true,
-                    content = @Content(schema = @Schema(implementation = Department.class)))
-            @RequestBody Department department) {
+                    content = @Content(schema = @Schema(implementation = DepartmentDTO.class)))
+            @RequestBody DepartmentDTO departmentDTO) {
+        Department department = new Department();
+        department.setName(departmentDTO.getName());
         return departmentService.save(department);
     }
 

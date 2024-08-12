@@ -2,6 +2,8 @@ package com.example.employee_management_system.service;
 
 import com.example.employee_management_system.model.Project;
 import com.example.employee_management_system.repository.ProjectRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +13,8 @@ import java.util.List;
 @Service
 public class ProjectService {
 
+    private static final Logger logger = LoggerFactory.getLogger(ProjectService.class);
+
     @Autowired
     private ProjectRepository projectRepository;
 
@@ -19,7 +23,12 @@ public class ProjectService {
     }
 
     public Project save(Project project) {
-        return projectRepository.save(project);
+        try {
+            return projectRepository.save(project);
+        } catch (Exception e) {
+            logger.error("Error saving project: {}", e.getMessage());
+            throw new RuntimeException("Failed to save project", e);
+        }
     }
 
     public void deleteById(Long id) {
@@ -27,10 +36,7 @@ public class ProjectService {
     }
 
     public List<Project> findAll() {
-        // Fetch data from the database
         List<Project> projects = (List<Project>) projectRepository.findAll();
-
-        // Return as List
         return new ArrayList<>(projects);
     }
 
@@ -38,13 +44,9 @@ public class ProjectService {
         if (projectIds == null || projectIds.isEmpty()) {
             return new ArrayList<>();
         }
-        // Fetch projects by their IDs
         Iterable<Project> projectsIterable = projectRepository.findAllById(projectIds);
-
-        // Convert Iterable to List
         List<Project> projectsList = new ArrayList<>();
         projectsIterable.forEach(projectsList::add);
-
         return projectsList;
     }
 }

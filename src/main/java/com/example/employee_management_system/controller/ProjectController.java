@@ -69,11 +69,17 @@ public class ProjectController {
     @PostMapping
     public Project createProject(
             @Parameter(description = "Project object to be created", required = true,
-                    content = @Content(schema = @Schema(implementation = Project.class)))
-            @RequestBody @Valid Project project) {
-        logger.info("Creating project: {}", project.getName());
+                    content = @Content(schema = @Schema(implementation = ProjectDTO.class)))
+            @RequestBody @Valid ProjectDTO projectDTO) {
+        logger.info("Creating project: {}", projectDTO.getName());
+
+        // Convert ProjectDTO to Project entity
+        Project project = new Project();
+        project.setName(projectDTO.getName());
+
         return projectService.save(project);
     }
+
 
     @Operation(summary = "Update a project", description = "Update an existing project.")
     @ApiResponses(value = {
